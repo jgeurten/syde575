@@ -1,0 +1,35 @@
+filename = 'cameraman.tiff'; 
+A = imread(filename); 
+imshow(A)
+imfinfo(filename)
+
+figure
+%agray = gray2rgb(A); 
+imhist(A)
+
+%P = impixel(A); 
+m = mean2(A); 
+s = std2(A); 
+
+B = imadjust(A, [],[], 2.4);
+B2 = imadjust(A, [],[], 0.7);
+
+imshow(B)
+imshow(B2)
+
+B3 =  histeq(A); 
+imshow(B3)
+imhist(B3)
+
+h = fspecial('average'); 
+C = filter2(h, A)./255;
+
+imshow(C)
+figure
+D = (double(A)./255) - C; 
+imshow(D)
+title('fav')
+hold on
+
+E = (double(A)./255) + D;
+imshow(E)
