@@ -81,7 +81,7 @@ title('h3');
 %% Section 5 - Point Operations for Image Enhancement
 clear all
 close all
-tire = imread('tire.tif');
+tire = imread('original tire.tif');
 
 figure, imhist(tire)
 title('Tire Hist')
@@ -106,9 +106,9 @@ figure, montage([gamma_tire_lo gamma_tire_hi]);
 title('Gamma 0.5 and Gamma 1.3'); 
 
 figure, histeq(tire);
-title('Tire');
+title('Eq Tire');
 figure, histeq(neg_img);
-title('Negative Tire');
+title('Eq Negative Tire');
 figure, histeq(gamma_tire_lo);
 title('Lo Gamma Tire');
 figure, histeq(gamma_tire_hi);

@@ -8,7 +8,7 @@
 function PSNR_out = PSNR(f, g)
     class_name = class(f); 
     max_f = double(intmax(class_name)); 
-    
+
     PSNR_out = 10*log10(double((max_f^2)/MSE(f,g)));
 end
 
