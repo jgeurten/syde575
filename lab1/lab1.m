@@ -86,6 +86,8 @@ tire = imread('original tire.tif');
 figure, imhist(tire)
 title('Tire Hist')
 
+
+
 class_name = class(tire); 
 max_f = double(intmax(class_name)); 
 
