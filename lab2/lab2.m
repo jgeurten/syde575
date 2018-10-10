@@ -28,6 +28,8 @@ saveas(gcf, 'toy_gauss.png');
 
 figure, imhist(toy_gauss);
 title('Zero-Mean Gaussian Noise (Variance = 0.01)');
+xlabel('Pixel Intensity'); 
+ylabel('Pixel Count'); 
 saveas(gcf, 'toy_gauss_hist.png');
 
 figure, imshow(toy_saltpepper);
@@ -37,6 +39,8 @@ saveas(gcf, 'toy_saltpepper.png');
 figure, imhist(toy_saltpepper);
 title('Salt & Pepper Noise (Density = 0.05)');
 saveas(gcf, 'toy_saltpepper_hist.png');
+xlabel('Pixel Intensity'); 
+ylabel('Pixel Count'); 
 ylim([0 20000]);
 
 figure, imshow(toy_speckle);
@@ -45,6 +49,8 @@ saveas(gcf, 'toy_speckle.png');
 
 figure, imhist(toy_speckle);
 title('Speckle Noise (Variance = 0.04)');
+xlabel('Pixel Intensity'); 
+ylabel('Pixel Count'); 
 saveas(gcf, 'toy_speckle_hist.png');
 
 cd(cur_dir)
@@ -56,7 +62,11 @@ cd(out_dir)
 
 mandrill = imread('mandrill.png'); 
 mandrill_bw = rgb2gray(mandrill); 
-mandrill = im2double(mandrill_bw); 
+mandrill = im2double(mandrill_bw);
+
+figure, imshow(mandrill); 
+title('Original Mandrill'); 
+saveas(gcf, 'org_mandrill.png'); 
 noisy_mandrill = imnoise(mandrill, 'gaussian', 0.002); 
 figure, imshow(noisy_mandrill); 
 title('Noisy Mandrill')
@@ -64,12 +74,16 @@ saveas(gcf, 'noisy_mandrill.png');
 
 figure, imhist(mandrill); 
 title('Mandrill Original'); 
+xlabel('Pixel Intensity'); 
+ylabel('Pixel Count'); 
 saveas(gcf, 'mandrill_org_hist.png'); 
 
 psnr_mandrill = psnr(mandrill, noisy_mandrill); 
 figure, imhist(noisy_mandrill); 
 title_name = strcat('Noisy Mandrill PSNR = ', num2str(psnr_mandrill)); 
 title(title_name); 
+xlabel('Pixel Intensity'); 
+ylabel('Pixel Count'); 
 saveas(gcf, 'noisy_mandrill_hist.png');
 
 % ==================== 3x3 Averaging Mask ==================== 
@@ -90,6 +104,8 @@ figure, imhist(avg_mandrill);
 psnr_denoised_man = psnr(avg_mandrill, mandrill); 
 title_name = strcat('Denoised Mandrill using Small Avg Mask PSNR = ', num2str(psnr_denoised_man)); 
 title(title_name); 
+xlabel('Pixel Intensity'); 
+ylabel('Pixel Count'); 
 saveas(gcf, 'denoised_mandrill_hist.png'); 
 
 % ==================== 7x7 Averaging Mask ====================
@@ -103,6 +119,8 @@ figure, imhist(avg_mandrill_lg);
 psnr_denoised_man_lg = psnr(avg_mandrill_lg, mandrill); 
 title_name = strcat('Denoised Mandrill using Large Mask PSNR = ', num2str(psnr_denoised_man_lg)); 
 title(title_name);
+xlabel('Pixel Intensity'); 
+ylabel('Pixel Count'); 
 saveas(gcf, 'denoised_mandrill_large_hist.png');
 
 % ==================== 7x7 Gaussian Mask ====================
@@ -122,6 +140,8 @@ figure, imhist(avg_mandrill_gauss);
 psnr_denoised_man_gauss = psnr(avg_mandrill_gauss, mandrill); 
 title_name = strcat('Denoised Mandrill using Gaussian Mask PSNR = ', num2str(psnr_denoised_man_gauss)); 
 title(title_name);
+xlabel('Pixel Intensity'); 
+ylabel('Pixel Count'); 
 saveas(gcf, 'denoised_mandrill_gauss_hist.png'); 
 
 % ==================== Salt and Pepper ==================== 
@@ -140,6 +160,8 @@ figure, imhist(avg_mandrill_lg_sp);
 psnr_denoised_saltpepper_man_lg = psnr(avg_mandrill_lg_sp, mandrill); 
 title_name = strcat('Denoised Mandrill using Large Mask PSNR = ', num2str(psnr_denoised_saltpepper_man_lg)); 
 title(title_name); 
+xlabel('Pixel Intensity'); 
+ylabel('Pixel Count'); 
 saveas(gcf, 'denoised_salt_mandrill_large_hist.png');
 
 %S&P with gaussian filter
@@ -152,6 +174,8 @@ figure, imhist(avg_mandrill_gauss_sp);
 psnr_denoised_saltpepper_man_gauss = psnr(avg_mandrill_gauss_sp, mandrill); 
 title_name = strcat('Denoised Mandrill using Gaussian Mask PSNR = ', num2str(psnr_denoised_saltpepper_man_gauss)); 
 title(title_name); 
+xlabel('Pixel Intensity'); 
+ylabel('Pixel Count'); 
 saveas(gcf, 'denoised_salt_mandrill_gauss_hist.png');
 
 %S&P with median filter
@@ -164,6 +188,8 @@ figure, imhist(avg_mandrill_median_sp);
 psnr_denoised_saltpepper_man_median = psnr(avg_mandrill_median_sp, mandrill); 
 title_name = strcat('Denoised Mandrill using Median Filter PSNR = ', num2str(psnr_denoised_saltpepper_man_median)); 
 title(title_name); 
+xlabel('Pixel Intensity'); 
+ylabel('Pixel Count'); 
 saveas(gcf, 'denoised_salt_mandrill_median_hist.png');
 
 cd(cur_dir)
