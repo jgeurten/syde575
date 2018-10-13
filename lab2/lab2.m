@@ -5,11 +5,16 @@ mkdir('img');
 cur_dir = pwd;
 
 %% Section 2: Noise Generation
-out_dir = 'img\sec2';
+out_dir = 'img/sec2';
 mkdir(out_dir)
 cd(out_dir)
 toy_im = [0.3*ones(200,100) 0.7*ones(200,100)];
 imwrite(toy_im, 'toy_orig.tif');
+
+figure, imhist(toy_im);
+title('Original Image');
+ylim([0 21000])
+saveas(gcf, 'toy_orig_hist.png');
 
 % Additive zero-mean Gaussian (var = 0.01)
 toy_gauss = imnoise(toy_im, 'gaussian', 0, 0.01);
@@ -42,6 +47,7 @@ saveas(gcf, 'toy_saltpepper_hist.png');
 xlabel('Pixel Intensity'); 
 ylabel('Pixel Count'); 
 ylim([0 20000]);
+saveas(gcf, 'toy_saltpepper_hist.png');
 
 figure, imshow(toy_speckle);
 title('Speckle Noise (Variance = 0.04)');
@@ -56,7 +62,7 @@ saveas(gcf, 'toy_speckle_hist.png');
 cd(cur_dir)
 
 %% Section 3:
-out_dir = 'img\sec3';
+out_dir = 'img/sec3';
 mkdir(out_dir)
 cd(out_dir)
 
@@ -150,9 +156,13 @@ figure, imshow(noisy_mandrill_sp);
 title('Salt and Pepper Noisy Mandrill')
 saveas(gcf, 'noisy_mandrill_salt_pepper.png'); 
 
+figure, imhist(noisy_mandrill_sp); 
+title('Salt and Pepper Noisy Mandrill')
+saveas(gcf, 'noisy_mandrill_salt_pepper_hist.png');
+
 %S&P with large averaging filter
 avg_mandrill_lg_sp = imfilter(noisy_mandrill_sp, avg_mask_lg); 
-figure, imshow(avg_mandrill_lg); 
+figure, imshow(avg_mandrill_lg_sp); 
 title('Denoised Salt and Pepper Mandrill using Large Mask'); 
 saveas(gcf, 'denoised_mandrill_saltandpepper_large.png');
 
