@@ -74,7 +74,7 @@ saveas(gcf, 'reconstructed_mandrill_phase.png');
 cd(cur_dir); 
 %% Part 3
 cur_dir = pwd;
-out_dir = 'img\sec3';
+out_dir = 'img/sec3';
 mkdir(out_dir)
 cd(out_dir)
 
@@ -90,12 +90,12 @@ mandrill_gauss_shift = fftshift(mandrill_gauss_fft);
 mandrill_gauss_log = log(abs(mandrill_gauss_shift));
 
 figure,
-imshow(mandrill_gray, [])
+imshow(mandrill_gray)
 title('Original Mandrill Image');
 saveas(gcf, 'mandrill_original.png'); 
 
 figure,
-imshow(mandrill_gauss, [])
+imshow(mandrill_gauss)
 title('Mandrill Image with Additive Gaussian Noise');
 saveas(gcf, 'mandrill_gauss.png'); 
 
@@ -137,7 +137,7 @@ for r = [60, 20]
     
     mandrill_denoised = abs(ifft2(mandrill_denoised_fft));
     
-    figure, imshow(mandrill_denoised, []);
+    figure, imshow(mandrill_denoised);
     title(['Denoised Mandrill Image Using Ideal LPF with Radius ', num2str(r), ' (PSNR=', num2str(PSNR(im2double(mandrill_denoised), mandrill_gray)), ')']);
     filename = strcat('mandrill_denoised_ideal_lpf_radius', num2str(r),'.png');
     saveas(gcf, filename); 
@@ -162,7 +162,7 @@ for sd = 60
     mandrill_denoised = abs(ifft2(mandrill_denoised_fft));
     
     
-    figure, imshow(mandrill_denoised, []);
+    figure, imshow(mandrill_denoised);
     title(['Denoised Mandrill Image Using Gaussian LPF with Std Dev ', num2str(sd), ' (PSNR=', num2str(PSNR(im2double(mandrill_denoised), mandrill_gray)), ')']);
     filename = strcat('mandrill_denoised_gaussian_lpf_stddev', num2str(sd),'.png');
     saveas(gcf, filename); 
