@@ -90,6 +90,16 @@ mandrill_gauss_shift = fftshift(mandrill_gauss_fft);
 mandrill_gauss_log = log(abs(mandrill_gauss_shift));
 
 figure,
+imshow(mandrill_gray, [])
+title('Original Mandrill Image');
+saveas(gcf, 'mandrill_original.png'); 
+
+figure,
+imshow(mandrill_gauss, [])
+title('Mandrill Image with Additive Gaussian Noise');
+saveas(gcf, 'mandrill_gauss.png'); 
+
+figure,
 imshow(mandrill_gray_log, [])
 title('Log Fourier Spectra of Original Mandrill Image');
 saveas(gcf, 'mandrill_log_fourier.png'); 
@@ -109,44 +119,52 @@ for r = [60, 20]
     h_freq = zeros(height, width);
     h_freq([(height/2)-r:(height/2)+r], [(width/2)-r:(width/2)+r])=h;
     
-    %Probably do not have to convert to the freq domain
-    h_freq_fft = fft2(h_freq);
-    h_freq_shift = fftshift(h_freq_fft);
-    h_freq_abs = abs(h_freq_shift);
-    %end
+%     %Probably do not have to convert to the freq domain
+%     h_freq_fft = fft2(h_freq);
+%     h_freq_shift = fftshift(h_freq_fft);
+%     h_freq_abs = abs(h_freq_shift);
+%     %end
     
-    figure, imshow(h_freq_abs, [])
+    figure, imshow(h_freq, [])
     title (['Fourier Spectra of Ideal Low Pass Filter with Radius ', num2str(r)]);
     filename = strcat('ideal_lpf_radius', num2str(r),'.png');
     saveas(gcf, filename); 
     
-    mandrill_denoised_fft = h_freq_fft.*mandrill_gauss_fft;
-    mandrill_denoised = ifftshift(ifft2(mandrill_denoised_fft));
+    mandrill_denoised_fft = h_freq.*mandrill_gauss_shift;
+    
+    figure, imshow(log(abs(mandrill_denoised_fft)), []);
+    title('Log Fourier Spectra of Denoised Mandrill Image');
+    
+    mandrill_denoised = abs(ifft2(mandrill_denoised_fft));
+    
     figure, imshow(mandrill_denoised, []);
-    title(['Denoised Mandrill Image Using LPF with Radius ', num2str(r), ' (PSNR=', num2str(PSNR(mat2gray(mandrill_denoised), mandrill_gray)), ')']);
+    title(['Denoised Mandrill Image Using Ideal LPF with Radius ', num2str(r), ' (PSNR=', num2str(PSNR(im2double(mandrill_denoised), mandrill_gray)), ')']);
     filename = strcat('mandrill_denoised_ideal_lpf_radius', num2str(r),'.png');
     saveas(gcf, filename); 
 end
 
 % Gaussian LPF
-for r = [60]
-    % Ideal LPF (white disk with radius r)
-    h_freq = fspecial('gaussian',size(mandrill_gray,1),r);
-
-    h_freq_fft = fft2(h_freq);
-    h_freq_shift = fftshift(h_freq_fft);
-    h_freq_abs = abs(h_freq_shift);
-
-    figure, imshow(h_freq_abs, [])
-    title (['Fourier Spectra of Gaussian Low Pass Filter with Radius ', num2str(r)]);
-    filename = strcat('gaussian_lpf_stddev', num2str(r),'.png');
+for sd = 60
+    h_freq = fspecial('gaussian',size(mandrill_gray,1),sd);
+    
+    % Normalize h_freq based on highest value in kernel
+    h_freq = h_freq./max(max(h_freq));
+    
+    figure, imshow(h_freq, [])
+    title (['Fourier Spectra of Gaussian Low Pass Filter with Std Dev ', num2str(sd)]);
+    filename = strcat('gaussian_lpf_stddev', num2str(sd),'.png');
     saveas(gcf, filename); 
     
-    mandrill_denoised_fft = h_freq_fft.*mandrill_gauss_fft;
-    mandrill_denoised = ifftshift(ifft2(mandrill_denoised_fft));
+    mandrill_denoised_fft = h_freq.*mandrill_gauss_shift;
+    figure, imshow(log(abs(mandrill_denoised_fft)), []);
+    title('Log Fourier Spectra of Denoised Mandrill Image');
+    
+    mandrill_denoised = abs(ifft2(mandrill_denoised_fft));
+    
+    
     figure, imshow(mandrill_denoised, []);
-    title(['Denoised Mandrill Image Using Gaussian LPF with Std Dev ', num2str(r), ' (PSNR=', num2str(PSNR(mat2gray(mandrill_denoised), mandrill_gray)), ')']);
-    filename = strcat('mandrill_denoised_gaussian_lpf_stddev', num2str(r),'.png');
+    title(['Denoised Mandrill Image Using Gaussian LPF with Std Dev ', num2str(sd), ' (PSNR=', num2str(PSNR(im2double(mandrill_denoised), mandrill_gray)), ')']);
+    filename = strcat('mandrill_denoised_gaussian_lpf_stddev', num2str(sd),'.png');
     saveas(gcf, filename); 
 end
 
