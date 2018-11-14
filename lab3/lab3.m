@@ -23,7 +23,7 @@ f_fft = fft2(f);
 f_fft_shift = fftshift(f_fft); 
 f_fft_abs = abs(f_fft_shift); 
 figure, 
-imshow(f_fft_abs, [])
+imshow(log(f_fft_abs), [])
 title('Test Image FFT'); 
 saveas(gcf, 'test_image_fft.png'); 
 
@@ -38,7 +38,7 @@ saveas(gcf, 'test_image_rotate.png');
 
 f_fft = fft2(f_rotated); 
 f_fft_shift = fftshift(f_fft); 
-f_fft_abs = abs(f_fft_shift); 
+f_fft_abs = abs(log(f_fft_shift)); 
 figure, 
 imshow(f_fft_abs, [])
 title('Test Image Rotated 45 Degrees FFT');
