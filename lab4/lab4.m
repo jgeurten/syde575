@@ -62,6 +62,7 @@ saveas(gcf, 'restored_cameraman_wiener_gauss.png');
 cd(cur_dir)
 
 %% Section 3- Lee filter (adaptive filtering)
+cd(cur_dir); 
 cd('img')
 mkdir('sec3')
 cd('sec3')
@@ -77,11 +78,58 @@ K = (local_var - noise_mat)./local_var;
 f_hat = K.*degraded_db + (1-K).*local_mean; 
 
 figure, imshow(f_hat);
-psnr_adaptive_filt_f = psnr(f_hat, f); 
+psnr_adaptive_filt_f = psnr(f_hat, cameraman_db); 
 title_name = strcat('Restored Blurred Cameraman Using Adaptive Filtering, PSNR = ', num2str(psnr_adaptive_filt_f)); 
 title(title_name); 
 set(gcf, 'Units', 'normalized', 'Position', [0 0 0.5 0.5] );
 saveas(gcf, 'restored_cameraman_adaptive_filtering.png');
+
+%Question 1 - Gaussian LPF
+degraded_fft = fftshift(fft2(degraded_db));
+r = 30;
+h_freq = fspecial('gaussian',size(degraded_db,1),r);
+h_freq = h_freq/max(h_freq(:)); 
+
+figure, imshow(h_freq, [])
+title (['Fourier Spectra of Gaussian Low Pass Filter with Radius ', num2str(r)]);
+
+degraded_denoised_fft = degraded_fft.*h_freq; 
+degraded_denoised = real(ifft2(ifftshift(degraded_denoised_fft))); 
+figure, imshow(degraded_denoised, []);
+psnr_gauss_filt_f = psnr(degraded_denoised, cameraman_db ); 
+title_name = ['Restored Blurred Cameraman Using Gaussian Filtering, PSNR = ', num2str(psnr_gauss_filt_f)]; 
+title(title_name);
+set(gcf, 'Units', 'normalized', 'Position', [0 0 0.5 0.5] );
+saveas(gcf, 'restored_cameraman_gauss_filtering.png');
+
+%Question 2 - Vary estimate for noise var
+noise_est = [var_noise/2, var_noise*2]; 
+tt = [0.5, 2];
+for i=1:2
+    K = (local_var - noise_est(i))./local_var; 
+    f_hat = K.*degraded_db + (1-K).*local_mean; 
+    figure, imshow(f_hat);
+    psnr_adaptive_filt_f_noiseVar = psnr(f_hat, cameraman_db); 
+    title_name = ['Restored Cameraman Using Adaptive Filtering with ', num2str(tt(i)), 'x Noise Estimate, ' , 'PSNR = ', num2str(psnr_adaptive_filt_f_noiseVar)];    title(title_name); 
+    set(gcf, 'Units', 'normalized', 'Position', [0 0 0.5 0.5] );
+    saveas(gcf, ['restored_cameraman_adaptive_filtering', num2str(tt(i)), 'noise_estimate.png']);
+end
+
+%Question 3 - change size of the filtering neighborhood
+kernel_size = [3, 7]; 
+
+for i=1:2
+    local_mean = colfilt(degraded_db, [kernel_size(i),kernel_size(i)], 'sliding', @mean);
+    local_var = colfilt(degraded_db, [kernel_size(i), kernel_size(i)], 'sliding', @var);
+    K = (local_var - var_noise)./local_var; 
+    f_hat = K.*degraded_db + (1-K).*local_mean; 
+    f_hat(isnan(f_hat)) = 0; 
+    figure, imshow(f_hat);
+    psnr_adaptive_filt_f_neighbor = psnr(f_hat, cameraman_db); 
+    title_name = ['Restored Cameraman Using Adaptive Filtering with a neighborhood estimate of ', num2str(kernel_size(i)), ', PSNR = ', num2str(psnr_adaptive_filt_f_neighbor)];    title(title_name); 
+    set(gcf, 'Units', 'normalized', 'Position', [0 0 0.5 0.5] );
+    saveas(gcf, ['restored_cameraman_adaptive_filtering', num2str(kernel_size(i)), 'neighborhood_size.png']);
+end
 
 cd(cur_dir); 
 %% PSNR
