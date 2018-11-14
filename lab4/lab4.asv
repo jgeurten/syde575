@@ -61,10 +61,7 @@ saveas(gcf, 'restored_cameraman_wiener_gauss.png');
 
 cd(cur_dir)
 
-%% Section 3- Lee filter (adaptive filtering)
-cd('img')
-mkdir('sec3')
-cd('sec3')
+%% Section 3- Jordan's shit
 degraded_db = im2double(degraded); 
 local_mean = colfilt(degraded_db, [5,5], 'sliding', @mean);
 local_var = colfilt(degraded_db, [5,5], 'sliding', @var);
@@ -73,8 +70,8 @@ flat_img = imcrop(degraded_db, [176     4    76   104]);
 var_noise = var(flat_img(:)); 
 noise_mat = ones(size(local_mean)).*var_noise; 
 
-K = (local_var - noise_mat)./local_var; 
-f_hat = K.*degraded_db + (1-K).*local_mean; 
+K = (local_var - noise_mat)/local_var; 
+f_hat = K*degraded_db + (1-K)*local_mean; 
 
 figure, imshow(f_hat);
 psnr_adaptive_filt_f = psnr(f_hat, f); 
@@ -83,7 +80,7 @@ title(title_name);
 set(gcf, 'Units', 'normalized', 'Position', [0 0 0.5 0.5] );
 saveas(gcf, 'restored_cameraman_adaptive_filtering.png');
 
-cd(cur_dir); 
+
 %% PSNR
 function psnr_out = psnr(f,g)
     psnr_out = 10*log10(1/mean2((f-g).^2));
