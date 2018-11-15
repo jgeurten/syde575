@@ -38,6 +38,14 @@ saveas(gcf, 'restored_cameraman_inverse.png');
 % Gaussian Noise
 f_blur_gauss = imnoise(f_blur, 'gaussian', 0, 0.002);
 
+% Plot blurred image
+figure, imshow(f_blur_gauss);
+psnr_f_blur_gauss = psnr(f_blur_gauss, f); 
+title_name = strcat('Blurred Cameraman Using Disk Blur with Additive Gaussian Noise, PSNR = ', num2str(psnr_f_blur_gauss)); 
+title(title_name); 
+set(gcf, 'Units', 'normalized', 'Position', [0 0 0.5 0.5] );
+saveas(gcf, 'blurred_gauss_cameraman.png'); 
+
 %Apply inverse filter
 inverse_filt_f_gauss = real(ifft2(fft2(f_blur_gauss)./h_freq));
 
@@ -49,7 +57,7 @@ set(gcf, 'Units', 'normalized', 'Position', [0 0 0.5 0.5] );
 saveas(gcf, 'restored_cameraman_inverse_gauss.png');
 
 % Apply Wiener Filter
-approx_nsr = 0.002/var(f_blur_gauss(:)); %0.002 = var(noise)
+approx_nsr = 0.002/var(f(:)); %0.002 = var(noise)
 wiener_filt_f_gauss = deconvwnr(f_blur_gauss, h, approx_nsr);
 
 figure, imshow(wiener_filt_f_gauss);
