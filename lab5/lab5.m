@@ -1,4 +1,4 @@
-%Lab5 Prep
+%% Lab5 Prep
 
 lena = imread('lena.tiff'); 
 peppers = imread('peppers.png'); 
@@ -7,6 +7,8 @@ cur_dir = pwd;
 mkdir('images/part2'); 
 mkdir('images/part3'); 
 mkdir('images/part4'); 
+mkdir('images/part5'); 
+
 %% Part 2
 cd('images/part2'); 
 peppers_ycbcr = rgb2ycbcr(peppers); 
@@ -144,16 +146,17 @@ end
 title('Rows of the DCT Matrix'); 
 legend('show');
 saveas(gcf, 'DCT_Matrix_Rows.png'); 
-fun =  @(x) T*x.data*T'; 
-f_db = double(f - 128); 
-F_trans = floor(blockproc(f_db, [N N], @(x) T*x.data*T'));
+% fun =  @(x) T*x.data*T'; 
+f= double(f); 
+F_trans = floor(blockproc(f-128, [N N], @(x) T*x.data*T'));
+
 
 figure, imshow(F_trans(297:297+N-1, 81:81+N-1),'InitialMagnification','fit'); 
-title('DCT of 8x8 Sub Image'); 
+title('DCT of High Freq Sub Image'); 
 saveas(gcf, 'DCT_SubImage_297_81.png'); 
 
 figure, imshow(F_trans(1:N, 1:N),'InitialMagnification','fit'); 
-title('DCT of 8x8 Sub Image'); 
+title('DCT of Low Freq Sub Image'); 
 saveas(gcf, 'DCT_SubImage_1_1.png'); 
 
 mask = [1 1 1 0 0 0 0 0;
@@ -164,18 +167,15 @@ mask = [1 1 1 0 0 0 0 0;
 0 0 0 0 0 0 0 0;
 0 0 0 0 0 0 0 0;
 0 0 0 0 0 0 0 0];
-F_thresh = blockproc(F_trans, [8 8], @(x) mask.*x.data);
-f_thresh = floor(blockproc(F_thresh, [8 8], @(x) T'*x.data*T)) + 128;
+F_thresh = blockproc(F_trans, [N N], @(x) mask.*x.data);
+f_thresh = floor(blockproc(F_thresh, [N N], @(x) T'*x.data*T)) + 128;
 
 figure, imshow(f_thresh, [])
-psnr_thresh = psnr(f_thresh, double(f)); 
+psnr_thresh = psnr( uint8(f_thresh), uint8(f)); 
 title(['Discarded DCT Coeffs Reconstruction PSNR: ', num2str(psnr_thresh)]); 
 saveas(gcf, 'DCT_Discarded_Reconstructed'); 
 
 cd(cur_dir)
 
-%% PSNR
-function psnr_out = psnr(f,g)
-    psnr_out = 10*log10(1/mean2((f-g).^2));
-end
-   
+%% Part 5
+cd('images/part5')
