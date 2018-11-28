@@ -173,9 +173,49 @@ f_thresh = floor(blockproc(F_thresh, [N N], @(x) T'*x.data*T)) + 128;
 figure, imshow(f_thresh, [])
 psnr_thresh = psnr( uint8(f_thresh), uint8(f)); 
 title(['Discarded DCT Coeffs Reconstruction PSNR: ', num2str(psnr_thresh)]); 
-saveas(gcf, 'DCT_Discarded_Reconstructed'); 
+saveas(gcf, 'DCT_Discarded_Reconstructed.png'); 
 
 cd(cur_dir)
 
 %% Part 5
 cd('images/part5')
+f = rgb2gray(lena);
+imwrite(f, 'lena_gray.png');
+
+N = 8; 
+T = dctmtx(N); 
+
+figure,imshow(T,'InitialMagnification','fit'); 
+title('DCT Matrix'); 
+saveas(gcf, 'DCT_Matrix.png'); 
+
+Z = [16 11 10 16 24 40 51 61;
+12 12 14 19 26 58 60 55;
+14 13 16 24 40 57 69 56;
+14 17 22 29 51 87 80 62;
+18 22 37 56 68 109 103 77;
+24 35 55 64 81 104 113 92;
+49 64 78 87 103 121 120 101;
+72 92 95 98 112 100 103 99];
+
+% Perform 8x8 DCT Transform
+f = double(f); 
+F_trans = blockproc(f-128, [N N], @(x) T*x.data*T');
+
+% Quantization to different degrees by adjusting Z quantization matrix
+for num_Z = [1, 3, 5, 10]
+    % Perform quantization
+    F_quantized = round(blockproc(F_trans, [N N], @(x) x.data./(num_Z.*Z)));
+    
+    % Re-construct image
+    F_reconstructed = blockproc(F_quantized, [N N], @(x) x.data.*(num_Z.*Z));
+    f_reconstructed = round(blockproc(F_reconstructed, [N N], @(x) T'*x.data*T)) + 128;
+    
+    figure, imshow(f_reconstructed, [])
+    psnr_reconstructed = psnr(uint8(f_reconstructed), uint8(f)); 
+    title(['Lena Reconstructed After DCT and Quantization Using ', num2str(num_Z),'Z PSNR: ', num2str(psnr_reconstructed)]); 
+    saveas(gcf, ['lena_reconstructed_', num2str(num_Z),'Z.png']); 
+end
+
+cd(cur_dir)
+
