@@ -42,17 +42,140 @@ imshow(peppers_Cr);
 title('Cr Channel of Peppers Resized'); 
 saveas(gcf, 'Resized_Cr_Peppers.png'); 
 
+%Unscaled Y channel
+peppers_combined = zeros(size(peppers_Y,1),size(peppers_Y,2), 3, 'uint8'); 
+peppers_combined(:,:,1) = peppers(:,:,1);
+peppers_combined(:,:,2) = peppers_Cb; 
+peppers_combined(:,:,3) = peppers_Cr; 
+figure, 
+imshow(peppers_combined); 
+title('Recombined Resized Peppers'); 
+saveas(gcf, 'Recombined_Peppers_Unscaled.png'); 
+
 peppers_combined = zeros(size(peppers_Y,1),size(peppers_Y,2), 3, 'uint8'); 
 peppers_combined(:,:,1) = peppers_Y;
 peppers_combined(:,:,2) = peppers_Cb; 
 peppers_combined(:,:,3) = peppers_Cr; 
 
 figure, 
-imshow(ycbcr2rgb(peppers_combined)); 
-title('Recombined Resized Peppers'); 
-saveas(gcf, 'Recombined_Peppers.png'); 
+imshow(peppers_combined); 
+title('Recombined All Channels Resized Peppers'); 
+saveas(gcf, 'Recombined_Peppers_Scaled.png'); 
 
 cd(cur_dir)
 
 %% Part 3
 cd('images/part3'); 
+c = makecform('srgb2lab');
+peppers_lab = applycform(peppers, c);
+
+for K = [2,4]
+    if (K == 2)
+        row = [55 200];
+        col = [155 400];
+    elseif (K == 4)
+        row = [55 130 200 280];
+        col = [155 110 400 470];
+    end
+        
+    % Convert (r,c) indexing to 1D linear indexing.
+    idx = sub2ind([size(peppers,1) size(peppers,2)], row, col);
+
+    % Reshape the a* and b* channels
+    ab = double(peppers_lab(:,:,2:3));
+    m = size(ab,1);
+    n = size(ab,2);
+    ab = reshape(ab,m*n,2);
+    mu = zeros(K, 2);
+
+    % Vectorize starting coordinates
+    for k = 1:K
+        mu(k,:) = ab(idx(k),:);
+    end
+
+    cluster_idx = kmeans(ab, K, 'Start', mu);
+
+    % Label each pixel according to k-means
+    pixel_labels = reshape(cluster_idx, m, n);
+    figure
+    h = imshow(pixel_labels, []);
+    title(['Peppers Segmented With K-Means and K = ', num2str(K)]);
+    colormap('jet')
+    saveas(gcf, ['peppers_k_means_', num2str(K),'.png']);
+
+    % Output each cluster using original colours of the image.
+    peppers_rep = repmat(peppers, 1, K);
+    pixel_labels_rep = [];
+
+    for k = 1:K
+        test = pixel_labels;
+        test(test~=k) = 0;
+        test(test==k) = 1;
+        pixel_labels_rep = [pixel_labels_rep test];
+    end
+
+    pixel_labels_rep = uint8(repmat(pixel_labels_rep, 1, 1, 3));
+
+    peppers_segmented = peppers_rep.*pixel_labels_rep;
+    figure
+    imshow(peppers_segmented);
+    title(['Peppers Segmented With K-Means and K = ', num2str(K)]);
+    saveas(gcf, ['peppers_original_k_means_', num2str(K), '.png']);
+end
+
+
+cd(cur_dir)
+
+%% Section 4
+cd('images/part4')
+N = 8; 
+T = dctmtx(N); 
+f = rgb2gray(lena); 
+
+figure,imshow(T,'InitialMagnification','fit'); 
+title('DCT Matrix'); 
+saveas(gcf, 'DCT_Matrix.png'); 
+
+figure, hold on
+for i=1:size(T,1)
+   plot(T(i,:), 'DisplayName', ['Row ', num2str(i)]);
+   legend('-DynamicLegend'); 
+end
+title('Rows of the DCT Matrix'); 
+legend('show');
+saveas(gcf, 'DCT_Matrix_Rows.png'); 
+fun =  @(x) T*x.data*T'; 
+f_db = double(f - 128); 
+F_trans = floor(blockproc(f_db, [N N], @(x) T*x.data*T'));
+
+figure, imshow(F_trans(297:297+N-1, 81:81+N-1),'InitialMagnification','fit'); 
+title('DCT of 8x8 Sub Image'); 
+saveas(gcf, 'DCT_SubImage_297_81.png'); 
+
+figure, imshow(F_trans(1:N, 1:N),'InitialMagnification','fit'); 
+title('DCT of 8x8 Sub Image'); 
+saveas(gcf, 'DCT_SubImage_1_1.png'); 
+
+mask = [1 1 1 0 0 0 0 0;
+1 1 0 0 0 0 0 0;
+1 0 0 0 0 0 0 0;
+0 0 0 0 0 0 0 0;
+0 0 0 0 0 0 0 0;
+0 0 0 0 0 0 0 0;
+0 0 0 0 0 0 0 0;
+0 0 0 0 0 0 0 0];
+F_thresh = blockproc(F_trans, [8 8], @(x) mask.*x.data);
+f_thresh = floor(blockproc(F_thresh, [8 8], @(x) T'*x.data*T)) + 128;
+
+figure, imshow(f_thresh, [])
+psnr_thresh = psnr(f_thresh, double(f)); 
+title(['Discarded DCT Coeffs Reconstruction PSNR: ', num2str(psnr_thresh)]); 
+saveas(gcf, 'DCT_Discarded_Reconstructed'); 
+
+cd(cur_dir)
+
+%% PSNR
+function psnr_out = psnr(f,g)
+    psnr_out = 10*log10(1/mean2((f-g).^2));
+end
+   
