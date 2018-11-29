@@ -1,7 +1,7 @@
 %% Lab5 Prep
 
 lena = imread('lena.tiff'); 
-peppers = imread('peppers.png'); 
+[peppers, map] = imread('peppers.png'); 
 cur_dir = pwd; 
 
 mkdir('images/part2'); 
@@ -16,14 +16,14 @@ channels = ["Y", "Cb", "Cr"];
 
 for i = 1:size(peppers_ycbcr, 3)
     figure, 
-    imshow(peppers(:,:,i)); 
+    imshow(peppers_ycbcr(:,:,i)); 
     title(strcat(channels(i), ' Channel of Peppers')); 
     saveas(gcf, strcat(channels(i), '_Channel_Peppers_YCrCb.png')); 
 end
 
-peppers_Y_small = imresize(peppers(:,:,1), 0.5); 
-peppers_Cb_small = imresize(peppers(:,:,2), 0.5); 
-peppers_Cr_small = imresize(peppers(:,:,3), 0.5); 
+peppers_Y_small = imresize(peppers_ycbcr(:,:,1), 0.5); 
+peppers_Cb_small = imresize(peppers_ycbcr(:,:,2), 0.5); 
+peppers_Cr_small = imresize(peppers_ycbcr(:,:,3), 0.5); 
 
 peppers_Y = imresize(peppers_Y_small, 2, 'bilinear'); 
 peppers_Cb = imresize(peppers_Cb_small, 2, 'bilinear'); 
@@ -46,11 +46,11 @@ saveas(gcf, 'Resized_Cr_Peppers.png');
 
 %Unscaled Y channel
 peppers_combined = zeros(size(peppers_Y,1),size(peppers_Y,2), 3, 'uint8'); 
-peppers_combined(:,:,1) = peppers(:,:,1);
+peppers_combined(:,:,1) = peppers_ycbcr(:,:,1);
 peppers_combined(:,:,2) = peppers_Cb; 
 peppers_combined(:,:,3) = peppers_Cr; 
 figure, 
-imshow(peppers_combined); 
+imshow(ycbcr2rgb(peppers_combined)); 
 title('Recombined Resized Peppers'); 
 saveas(gcf, 'Recombined_Peppers_Unscaled.png'); 
 
@@ -60,7 +60,7 @@ peppers_combined(:,:,2) = peppers_Cb;
 peppers_combined(:,:,3) = peppers_Cr; 
 
 figure, 
-imshow(peppers_combined); 
+imshow(ycbcr2rgb(peppers_combined)); 
 title('Recombined All Channels Resized Peppers'); 
 saveas(gcf, 'Recombined_Peppers_Scaled.png'); 
 
@@ -151,11 +151,11 @@ f= double(f);
 F_trans = floor(blockproc(f-128, [N N], @(x) T*x.data*T'));
 
 
-figure, imshow(F_trans(297:297+N-1, 81:81+N-1),'InitialMagnification','fit'); 
+figure, imshow(F_trans(297:297+N-1, 81:81+N-1), [], 'InitialMagnification','fit'); 
 title('DCT of High Freq Sub Image'); 
 saveas(gcf, 'DCT_SubImage_297_81.png'); 
 
-figure, imshow(F_trans(1:N, 1:N),'InitialMagnification','fit'); 
+figure, imshow(F_trans(1:N, 1:N), [],'InitialMagnification','fit'); 
 title('DCT of Low Freq Sub Image'); 
 saveas(gcf, 'DCT_SubImage_1_1.png'); 
 
